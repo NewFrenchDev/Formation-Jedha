@@ -21,23 +21,7 @@ def load_data(year, team):
     records = None
     df=None
     try:
-        # connection = psycopg2.connect(host=os.environ.get('HOST'), database=os.environ.get('NAME'), 
-        #                             user=os.environ.get('USER'), password=os.environ.get('PASSWORD'),
-        #                             port=os.environ.get('PORT'))
         cnx = create_engine(f"postgresql+psycopg2://{os.environ.get('USER')}:{os.environ.get('PASSWORD')}@{os.environ.get('HOST')}:{os.environ.get('PORT')}/{os.environ.get('NAME')}")
-        # print('Connected')
-        # cursor = connection.cursor()
-        # # Print PostgreSQL details
-        # print("PostgreSQL server information")
-        # print(connection.get_dsn_parameters(), "\n")
-        # # Executing a SQL query
-        # cursor.execute("SELECT version();")
-        # # Fetch result
-        # record = cursor.fetchone()
-        # print("You are connected to - ", record, "\n")
-        # # Fetch result
-        # cursor.execute("SELECT * FROM players_boxscore LIMIT 100")
-        # record = cursor.fetchall()
         df = pd.read_sql_query(f"SELECT * FROM players_boxscore", con=cnx, parse_dates=['Game Date'])
         df = df[df['Game Date'].dt.year == year]
     except Exception as e:
@@ -48,32 +32,36 @@ def load_data(year, team):
 def setup():
     st.title("ML-Ball")
 
-    st.write("""
-    # Bienvenue sur ma première webapp!
-    """)
-
-    st.time_input('Time entry')
-
-    connected = st.button('Connect to Database Postgresql')
-
     st.sidebar.header('User Input Features')
-    a = st.sidebar.radio('Choose dataset:', ['Ball', 'Player'])
+    a = st.sidebar.radio('Cool Features', ['Dashboard', 'Track the ball'])
     selected_year = st.sidebar.selectbox('Year', list(reversed(range(2000, 2022))))
     selected_team = st.sidebar.selectbox('Team', ['WAS', 'TOR', 'LAL'])
 
-    if connected:
-        test = load_data(selected_year, selected_team)
-        test
-
-        st.markdown(filedownload(test), unsafe_allow_html=True)
-
-    st.file_uploader('File uploader')
-
     
+    if a == 'Dashboard':
 
-    col1, col2 = st.beta_columns(2)
-    col1.subheader('Ball')
-    col2.subheader('Player')
+        st.write("""
+        # Dashboard
+        """)
+   
+        connected = st.button('Connect to Database Postgresql')
+
+        if connected:
+            test = load_data(selected_year, selected_team)
+            test
+
+            st.markdown(filedownload(test), unsafe_allow_html=True)
+
+        st.image('https://hoopdirt.com/wp-content/uploads/2018/10/ipad-court-690x340.png')
+
+        st.time_input('Time entry')
+
+
+        st.file_uploader('File uploader')
+
+        col1, col2 = st.beta_columns(2)
+        col1.subheader('Ball')
+        col2.subheader('Player')
 
 
 if __name__ == '__main__':
